@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  api:
+    build:
+      context: .
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DATABASE_URL=sqlite:///database.db
+      - SECRET_KEY=da64f456dfeb4eae915bf4acc9283c9f
+    
