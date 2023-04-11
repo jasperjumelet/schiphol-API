@@ -1,90 +1,22 @@
-from .models import Airlines, Airports, Flights, db
-import requests
-import logging
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import FlushError
-from sqlalchemy.exc import IntegrityError
+from .models import Airports
+from math import sin, cos, sqrt, atan2, radians
 
 
-_logger = logging.getLogger(__name__)
-
-def initialize_airlines(data):
+def calcDistSchiphol(lat: float, lon: float) -> int:
     """
-    Initialization of airlines data to database
+    Fill in lat, lon of a airports and returns the distance in km to schiphol
     """
-    # Create a session
-    Session = sessionmaker(bind=db.engine)
-    session = Session()
-
-    for airline in data:
-        new_entry = Airlines(id=airline['id'],
-                             name=airline['name'])
-        # Check for duplicates or type errors
-        try:
-            session.add(new_entry)
-            session.flush()
-        except (FlushError, IntegrityError):
-            session.rollback()
-    session.commit()
-
-def initialize_airports(data):
-    """
-    Initialization of airports data to database
-    """
-    # Create a session
-    Session = sessionmaker(bind=db.engine)
-    session = Session()
-
-    for airport in data:
-        new_entry = Airports(id=airport['id'],
-                             latitude=airport['latitude'],
-                             longitude=airport['longitude'],
-                             name=airport['name'],
-                             city=airport['city'],
-                             countryId=airport['countryId'])
-        # Check for duplicates or type errors
-        try:
-            session.add(new_entry)
-            session.flush()
-        except (FlushError, IntegrityError):
-            session.rollback()
-    session.commit()
-
-def initialize_flights(data):
-    """
-    Initialization of flights data to database
-    """
-    # Create a session
-    Session = sessionmaker(bind=db.engine)
-    session = Session()
-
-    for flight in data:
-        new_entry = Flights(airlineId=flight['airlineId'],
-                            flightNumber=flight['flightNumber'],
-                            departureAirportId=flight['departureAirportId'],
-                            arrivalAirportId=flight['arrivalAirportId'])        
-        # Check for duplicates or type errors
-        try:
-            session.add(new_entry)
-            session.flush()
-        except (FlushError, IntegrityError):
-            session.rollback()
-
-    session.commit()
-
-
-def initialize_data():
-    airlines = 'https://assignments-assets.datasavannah.com/schiphol/airlines.json'
-    airports = 'https://assignments-assets.datasavannah.com/schiphol/airports.json'
-    flights = 'https://assignments-assets.datasavannah.com/schiphol/flights.json'
+    schiphol = Airports.query.filter_by(id="AMS").first()
     
-    try:
-        req_airlines = requests.get(airlines).json()
-        req_airports = requests.get(airports).json()
-        req_flights = requests.get(flights).json()
-    except Exception as e:
-        _logger.error(f"Error in initialization data requests: {e}")
+    # Radius of the earth in km
+    R = 6371 
 
-    initialize_airlines(req_airlines)
-    initialize_airports(req_airports)
-    initialize_flights(req_flights)
+    lat1, lon1, lat2, lon2 = map(radians, [schiphol.latitude, schiphol.longitude, lat, lon])
+
+    dlon = lon2 - lon1
+    dlat = lat2- lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    distance = R * c
+    return int(distance)  

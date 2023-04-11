@@ -1,0 +1,12 @@
+[{
+    "airlineId": "t1",
+    "flightNumber": 1,
+    "departureAirportId": "AMS",
+    "arrivalAirportId": "AMM"
+},
+{
+    "airlineId": "t1",
+    "flightNumber": 2,
+    "departureAirportId": "AMS",
+    "arrivalAirportId": "AMM"
+}]

@@ -1,9 +1,9 @@
 import json
 
-from math import sin, cos, sqrt, atan2, radians
 
 from flask_restx import Api, Resource, fields
 from flask import jsonify
+from .utils import calcDistSchiphol
 from .models import db, Airlines, Airports, Flights
 # from .config import BaseConfig
 
@@ -59,24 +59,6 @@ class Flightsapi(Resource):
     
 @rest_api.route('/airports')
 class AllAirportsapi(Resource):
-    def calcDistSchiphol(self, lat, lon):
-        """
-        Fill in lat, lon of a airports and returns the distance in km to schiphol
-        """
-        schiphol = Airports.query.filter_by(id="AMS").first()
-        
-        # Radius of the earth in km
-        R = 6371 
-
-        lat1, lon1, lat2, lon2 = map(radians, [schiphol.latitude, schiphol.longitude, lat, lon])
-
-        dlon = lon2 - lon1
-        dlat = lat2- lat1
-
-        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-        c = 2 * atan2(sqrt(a), sqrt(1-a))
-        distance = R * c
-        return int(distance)  
 
     @rest_api.marshal_list_with(all_airports_api)
     def get(self):
@@ -87,7 +69,7 @@ class AllAirportsapi(Resource):
         for airport in airports:
            response.append({'id': airport.id,
                            'name': airport.name,
-                           'distance': self.calcDistSchiphol(airport.latitude, airport.longitude)})
+                           'distance': calcDistSchiphol(airport.latitude, airport.longitude)})
         
         response = sorted(response, key=lambda x: x['distance'])
         return response
@@ -108,25 +90,6 @@ class SpecificAirportapi(Resource):
 
 @rest_api.route("/airlines")
 class Airlinesapi(Resource):
-    
-    def calcDistSchiphol(self, lat, lon):
-        """
-        Fill in lat, lon of a airports and returns the distance in km to schiphol
-        """
-        schiphol = Airports.query.filter_by(id="AMS").first()
-        
-        # Radius of the earth in km
-        R = 6371 
-
-        lat1, lon1, lat2, lon2 = map(radians, [schiphol.latitude, schiphol.longitude, lat, lon])
-
-        dlon = lon2 - lon1
-        dlat = lat2- lat1
-
-        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-        c = 2 * atan2(sqrt(a), sqrt(1-a))
-        distance = R * c
-        return int(distance)  
 
     @rest_api.marshal_list_with(airlines_api)
     def get(self):
@@ -139,9 +102,9 @@ class Airlinesapi(Resource):
 
             for flight in flights:
                 airport = Airports.query.filter_by(id=flight.arrivalAirportId).first()
-                totalDistanceAirline += self.calcDistSchiphol(airport.latitude, airport.longitude)
+                totalDistanceAirline += calcDistSchiphol(airport.latitude, airport.longitude)
             
-            response.append([{"id": airline.id,
+            response.append({"id": airline.id,
                          "name": airline.name,
-                         "totalDistance": totalDistanceAirline}])
+                         "totalDistance": totalDistanceAirline})
         return response

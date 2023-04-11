@@ -1,0 +1,16 @@
+[{
+    "id": "AMS",
+    "latitude": 52.30907,
+    "longitude": 4.763385,
+    "name": "Amsterdam-Schiphol Airport",
+    "city": "Amsterdam",
+    "countryId": "NL" 
+}, 
+{
+    "id": "AMM",
+    "latitude": 31.722534,
+    "longitude": 35.98932,
+    "name": "Queen Alia International Airport",
+    "city": "Amman",
+    "countryId": "JO" 
+}]
