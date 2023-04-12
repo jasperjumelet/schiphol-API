@@ -1,5 +1,6 @@
 
 from .models import Airlines, Airports, Flights, db
+from .utils import calcDistSchiphol
 import requests
 import logging
 from sqlalchemy.orm import sessionmaker
@@ -36,12 +37,16 @@ def initialize_airports(data):
     session = Session()
 
     for airport in data:
+        # Add the distance to amsterdam here for faster api
+        distance_to_ams = calcDistSchiphol(airport['latitude'], airport['longitude'])
         new_entry = Airports(id=airport['id'],
                              latitude=airport['latitude'],
                              longitude=airport['longitude'],
                              name=airport['name'],
                              city=airport['city'],
-                             countryId=airport['countryId'])
+                             countryId=airport['countryId'],
+                             distToAMS=distance_to_ams,
+                             )
         # Check for duplicates or type errors
         try:
             session.add(new_entry)

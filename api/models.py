@@ -15,6 +15,7 @@ class Airports(db.Model):
     name = db.Column(db.String())
     city = db.Column(db.String())
     countryId = db.Column(db.String())
+    distToAMS = db.Column(db.Integer())
 
     @classmethod
     def get_by_id(cls, id):

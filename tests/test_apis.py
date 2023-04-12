@@ -65,6 +65,10 @@ def test_airport_id_api(client):
                'countryId': 'JO'}
     assert airport == req_airport_data[0]
 
+    # check for error handling in invalid requests
+    req_invalid_airport_data = client.get("/airports/1")
+    assert 404 == req_invalid_airport_data.status_code
+
 def test_airlines_api(client):
     """
     Tests for airlines api
