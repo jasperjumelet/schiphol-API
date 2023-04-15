@@ -13,6 +13,11 @@ def reinitialize_database_task():
     with app.app_context:
         reinitialize_database()
 
+@app.shell_context_processor
+def make_shell_context():
+    return {"app": app,
+            "db": db}
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

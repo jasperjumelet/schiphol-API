@@ -10,7 +10,6 @@ _logger = logging.getLogger(__name__)
 
 rest_api = Api(version="1.0", title="Airport API")
 
-
 """
     Flask-Restx models for api request and response data
 """
@@ -67,16 +66,16 @@ class Flightsapi(Resource):
     """
     @rest_api.marshal_list_with(flight_api)
     def get(self, airline_id):
-        try:
-            flight = Flights.query.filter_by(airlineId=airline_id)
-            response = [{'airlineId': flight.airlineId,
-                        'flightNumber': flight.flightNumber,
-                        'departureAirportId': flight.departureAirportId,
-                        'arrivalAirportId': flight.arrivalAirportId}]
+        flights = Flights.query.filter_by(airlineId=airline_id).all()
+        if flights:
+            response = [{'airlineId': item.airlineId,
+                        'flightNumber': item.flightNumber,
+                        'departureAirportId': item.departureAirportId,
+                        'arrivalAirportId': item.arrivalAirportId} for item in flights]
             return response
-        except AttributeError:
-            _logger.error(f"airlineId: {airline_id} is invalid or non existend")
-            return {"error": f"could not find id: {airline_id} in database"}, 404
+        else:
+            _logger.warning(f"airlineId: {airline_id} is invalid or non existend")
+            return {"warning": f"could not find id: {airline_id} in database"}, 404
 @rest_api.route('/airports')
 class AllAirportsapi(Resource):
     @rest_api.expect(parser)
@@ -133,12 +132,16 @@ class Airlinesapi(Resource):
 
             for flight in flights:
                 if distance:
-                    airport = Airports.query.filter((Airports.distToAMS < distance) & (Airports.id == flight.arrivalAirportId)).all()
+                    airports = Airports.query.filter((Airports.distToAMS < distance) & (Airports.id == flight.arrivalAirportId)).all()
+                    totalDistanceAirline += sum([airport.distToAMS for airport in airports])
                 else:
                     airport = Airports.query.filter_by(id=flight.arrivalAirportId).first()
-                totalDistanceAirline += airport.distToAMS
-            
-            response.append({"id": airline.id,
-                         "name": airline.name,
-                         "totalDistance": totalDistanceAirline})
+                    totalDistanceAirline += airport.distToAMS
+            if totalDistanceAirline: 
+                response.append({"id": airline.id,
+                            "name": airline.name,
+                            "totalDistance": totalDistanceAirline})
+        if response == []:
+            _logger.error(f"could not find any valid airline within the range of {distance}")
+            return {"error": f"could not find any valid airline within the range of {distance}"}, 404
         return response
