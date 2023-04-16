@@ -15,4 +15,14 @@ services:
       - FLASK_DEBUG=1
       - DATABASE_URL=sqlite:///database.db
       - SECRET_KEY=da64f456dfeb4eae915bf4acc9283c9f
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DATABASE_URL=sqlite:///test.db
+      - SECRET_KEY=da64f456dfeb4eae915bf4acc9283c9f
+
     
