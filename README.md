@@ -44,4 +44,4 @@ docker-compose run test
 ~~~
 
 ## Architecture
-![Architecture](impala_diagram.drawio.png)
+![Architecture](images/impala_diagram.drawio.png)
